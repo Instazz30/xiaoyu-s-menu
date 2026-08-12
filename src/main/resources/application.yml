@@ -1,0 +1,64 @@
+server:
+  port: 8080
+  # 本地局域网联调用 HTTP（真机开发版 + 开发者工具勾选「不校验合法域名」即可访问，无证书校验问题）。
+  # 上线前必须恢复 HTTPS：取消下面 ssl 块注释，并确保证书由受信任 CA 签发（或使用云厂商 HTTPS 证书）。
+  # ssl:
+  #   enabled: true
+  #   key-store: classpath:ssl/keystore.p12
+  #   key-store-type: PKCS12
+  #   key-store-password: changeit
+  #   key-alias: xingbang
+
+spring:
+  application:
+    name: xingbang-menu
+
+  profiles:
+    # 默认使用本地开发配置；生产环境通过 SPRING_PROFILES_ACTIVE 覆盖。
+    active: ${SPRING_PROFILES_ACTIVE:dev}
+
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+
+  datasource:
+    url: ${DB_URL:jdbc:mysql://localhost:3306/xingbang_menu?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Shanghai&characterEncoding=utf8}
+    username: ${DB_USERNAME:}
+    password: ${DB_PASSWORD:}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      minimum-idle: 5
+      maximum-pool-size: 20
+
+mybatis:
+  configuration:
+    map-underscore-to-camel-case: true
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+  mapper-locations: classpath:mapper/*.xml
+
+logging:
+  level:
+    com.xiaxiaoyu.xingbangmenu: DEBUG
+  pattern:
+    dateformat: yyyy-MM-dd HH:mm:ss
+
+# 微信小程序配置（留空时后端自动进入 mock 登录模式，便于本地联调）
+wechat:
+  appid: ${WECHAT_APPID:}
+  secret: ${WECHAT_SECRET:}
+
+# 文件上传配置
+upload:
+  max-file-size: 10MB
+  allowed-types: image/jpeg,image/png,image/webp,image/heic,image/heif
+  storage-path: ${UPLOAD_PATH:./uploads}
+
+# 阿里云 OSS（AccessKey 使用 OSS_ACCESS_KEY_ID / OSS_ACCESS_KEY_SECRET 环境变量）
+aliyun:
+  oss:
+    endpoint: ${OSS_ENDPOINT:}
+    region: ${OSS_REGION:}
+    bucket-name: ${OSS_BUCKET_NAME:}
+    # Bucket 使用自定义域名、CDN 或内网 Endpoint 时，应显式配置公网访问地址
+    public-base-url: ${OSS_PUBLIC_BASE_URL:}

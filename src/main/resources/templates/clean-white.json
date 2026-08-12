@@ -1,0 +1,145 @@
+{
+  "id": "clean_white",
+  "name": "经典模板",
+  "canvas": { "width": 750, "height": 1334 },
+  "background": "#FFFFFF",
+  "backgroundImage": "menu_bg.png",
+  "margin": 40,
+  "header": {
+    "height": 205,
+    "children": [
+      {
+        "type": "text",
+        "text": "第{{issue}}期食堂菜单",
+        "defaultText": "第1期食堂菜单",
+        "position": { "x": "center", "y": 42 },
+        "style": { "fontSize": 32, "bold": true, "color": "#0099D9", "align": "center" }
+      },
+      {
+        "type": "text",
+        "text": "{{dateText}}",
+        "visibleIf": "showDate",
+        "position": { "x": "left", "y": 158 },
+        "style": { "fontSize": 22, "bold": true, "color": "#333333" }
+      },
+      {
+        "type": "text",
+        "text": "{{canteenName}}",
+        "visibleIf": "showCanteen",
+        "position": { "x": "right", "y": 158 },
+        "style": { "fontSize": 22, "color": "#666666", "align": "right" }
+      }
+    ]
+  },
+  "body": {
+    "type": "composite",
+    "gap": 18,
+    "children": [
+      {
+        "type": "forEach",
+        "source": "sections",
+        "gap": 12,
+        "item": {
+          "type": "composite",
+          "gap": 8,
+          "children": [
+            {
+              "type": "composite",
+              "height": 44,
+              "separator": { "color": "#D9EFFC", "thickness": 1 },
+              "children": [
+                {
+                  "type": "text",
+                  "text": "{{name}}",
+                  "position": { "x": "left", "y": "center" },
+                  "style": { "fontSize": 28, "bold": true, "color": "#333333" }
+                },
+                {
+                  "type": "priceTag",
+                  "text": "{{priceText}}",
+                  "visibleIf": "showPrice",
+                  "position": { "x": "right", "y": "center" },
+                  "style": { "fontSize": 24, "bold": true, "color": "#0099D9" }
+                }
+              ]
+            },
+            {
+              "type": "grid",
+              "source": "items",
+              "columns": 3,
+              "gap": 12,
+              "cellHeight": 0,
+              "item": {
+                "type": "composite",
+                "gap": 6,
+                "children": [
+                  {
+                    "type": "image",
+                    "path": "{{imagePath}}",
+                    "height": 0,
+                    "borderRadius": 12,
+                    "fit": "cover",
+                    "placeholder": { "color": "#F2F8FC", "text": "暂无图片" }
+                  },
+                  {
+                    "type": "text",
+                    "text": "{{name}}",
+                    "position": { "x": "center" },
+                    "style": { "fontSize": 22, "bold": true, "color": "#333333" }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      {
+        "type": "composite",
+        "gap": 8,
+        "visibleIf": "hasXiaowan",
+        "children": [
+          {
+            "type": "composite",
+            "height": 44,
+            "separator": { "color": "#D9EFFC", "thickness": 1 },
+            "children": [
+              {
+                "type": "text",
+                "text": "小碗菜",
+                "position": { "x": "left", "y": "center" },
+                "style": { "fontSize": 28, "bold": true, "color": "#333333" }
+              }
+            ]
+          },
+          {
+            "type": "forEach",
+            "source": "xiaowanSections",
+            "gap": 6,
+            "item": {
+              "type": "text",
+              "text": "{{name}}：{{itemsText}}",
+              "position": { "x": "left" },
+              "style": { "fontSize": 24, "color": "#333333", "wrap": true, "lineGap": 4 }
+            }
+          },
+          {
+            "type": "grid",
+            "source": "xiaowanImages",
+            "columns": 2,
+            "gap": 12,
+            "cellHeight": 0,
+            "reserve": 0,
+            "item": {
+              "type": "image",
+              "path": "{{imagePath}}",
+              "height": 0,
+              "borderRadius": 12,
+              "fit": "cover",
+              "placeholder": { "color": "#F2F8FC", "text": "暂无图片" }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

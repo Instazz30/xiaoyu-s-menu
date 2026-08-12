@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.xiaxiaoyu.xingbangmenu.mapper.GroupMemberMapper">
+
+    <resultMap id="BaseResultMap" type="com.xiaxiaoyu.xingbangmenu.entity.GroupMember">
+        <id column="id" property="id"/>
+        <result column="group_id" property="groupId"/>
+        <result column="user_id" property="userId"/>
+        <result column="album_permission" property="albumPermission"/>
+        <result column="joined_at" property="joinedAt"/>
+        <result column="left_at" property="leftAt"/>
+        <result column="is_deleted" property="isDeleted"/>
+    </resultMap>
+
+    <insert id="insert" parameterType="com.xiaxiaoyu.xingbangmenu.entity.GroupMember"
+            useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO group_member (group_id, user_id, role)
+        VALUES (#{groupId}, #{userId}, #{role})
+    </insert>
+
+    <select id="selectByGroupId" resultType="java.util.HashMap">
+        SELECT m.id AS memberId, m.user_id AS userId, m.role AS role,
+               CAST(m.album_permission AS UNSIGNED) AS albumPermission,
+               DATE_FORMAT(m.joined_at, '%Y-%m-%d %H:%i:%s') AS joinedAt,
+               u.nickname AS nickname, u.avatar_url AS avatarUrl
+        FROM group_member m
+        INNER JOIN sys_user u ON u.id = m.user_id AND u.is_deleted = 0
+        WHERE m.group_id = #{groupId} AND m.is_deleted = 0
+        ORDER BY (m.role = 'admin') DESC, m.joined_at ASC
+    </select>
+
+    <select id="selectByGroupAndUser" resultMap="BaseResultMap">
+        SELECT * FROM group_member
+        WHERE group_id = #{groupId} AND user_id = #{userId} AND is_deleted = 0
+        LIMIT 1
+    </select>
+
+    <update id="update" parameterType="com.xiaxiaoyu.xingbangmenu.entity.GroupMember">
+        UPDATE group_member
+        <set>
+            <if test="role != null">role = #{role},</if>
+            <if test="albumPermission != null">album_permission = #{albumPermission},</if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <update id="leave">
+        UPDATE group_member SET is_deleted = 1, left_at = NOW() WHERE id = #{id}
+    </update>
+
+    <update id="deleteByGroupId">
+        UPDATE group_member SET is_deleted = 1, left_at = NOW()
+        WHERE group_id = #{groupId} AND is_deleted = 0
+    </update>
+
+    <select id="countByGroupId" resultType="long">
+        SELECT COUNT(*) FROM group_member WHERE group_id = #{groupId} AND is_deleted = 0
+    </select>
+</mapper>

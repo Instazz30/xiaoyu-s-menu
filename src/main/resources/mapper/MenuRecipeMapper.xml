@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.xiaxiaoyu.xingbangmenu.mapper.MenuRecipeMapper">
+
+    <resultMap id="BaseResultMap" type="com.xiaxiaoyu.xingbangmenu.entity.MenuRecipe">
+        <id column="id" property="id"/>
+        <result column="recipe_date" property="recipeDate"/>
+        <result column="issue" property="issue"/>
+        <result column="canteen_name" property="canteenName"/>
+        <result column="group_id" property="groupId"/>
+        <result column="is_current" property="isCurrent"/>
+        <result column="creator_id" property="creatorId"/>
+        <result column="original_text" property="originalText"/>
+        <result column="template_id" property="templateId"/>
+        <result column="display_price" property="displayPrice"/>
+        <result column="display_date" property="displayDate"/>
+        <result column="display_canteen" property="displayCanteen"/>
+        <result column="current_poster_id" property="currentPosterId"/>
+        <result column="created_at" property="createdAt"/>
+        <result column="updated_at" property="updatedAt"/>
+        <result column="is_deleted" property="isDeleted"/>
+    </resultMap>
+
+    <insert id="insert" parameterType="com.xiaxiaoyu.xingbangmenu.entity.MenuRecipe"
+            useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO menu_recipe (title, recipe_date, issue, canteen_name, group_id, is_current, creator_id)
+        VALUES (#{title}, #{recipeDate}, #{issue}, #{canteenName}, #{groupId},
+                COALESCE(#{isCurrent}, 0), #{creatorId})
+    </insert>
+
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT * FROM menu_recipe WHERE id = #{id} AND is_deleted = 0
+    </select>
+
+    <select id="selectList" resultMap="BaseResultMap">
+        SELECT * FROM menu_recipe
+        WHERE is_deleted = 0 AND group_id = #{groupId}
+        AND (original_text IS NOT NULL
+             OR EXISTS (SELECT 1 FROM menu_section s
+                        WHERE s.recipe_id = menu_recipe.id AND s.is_deleted = 0))
+        <if test="status != null and status != ''">
+            AND status = #{status}
+        </if>
+        <if test="dateFrom != null">
+            AND recipe_date >= #{dateFrom}
+        </if>
+        <if test="dateTo != null">
+            AND recipe_date &lt;= #{dateTo}
+        </if>
+        <if test="keyword != null and keyword != ''">
+            AND (title LIKE CONCAT('%', #{keyword}, '%')
+                 OR id IN (SELECT recipe_id FROM menu_item
+                           WHERE is_deleted = 0 AND name LIKE CONCAT('%', #{keyword}, '%')))
+        </if>
+        ORDER BY recipe_date DESC, created_at DESC
+        LIMIT #{offset}, #{limit}
+    </select>
+
+    <select id="countList" resultType="long">
+        SELECT COUNT(*) FROM menu_recipe
+        WHERE is_deleted = 0 AND group_id = #{groupId}
+        AND (original_text IS NOT NULL
+             OR EXISTS (SELECT 1 FROM menu_section s
+                        WHERE s.recipe_id = menu_recipe.id AND s.is_deleted = 0))
+        <if test="status != null and status != ''">
+            AND status = #{status}
+        </if>
+        <if test="dateFrom != null">
+            AND recipe_date >= #{dateFrom}
+        </if>
+        <if test="dateTo != null">
+            AND recipe_date &lt;= #{dateTo}
+        </if>
+        <if test="keyword != null and keyword != ''">
+            AND (title LIKE CONCAT('%', #{keyword}, '%')
+                 OR id IN (SELECT recipe_id FROM menu_item
+                           WHERE is_deleted = 0 AND name LIKE CONCAT('%', #{keyword}, '%')))
+        </if>
+    </select>
+
+    <update id="update" parameterType="com.xiaxiaoyu.xingbangmenu.entity.MenuRecipe">
+        UPDATE menu_recipe SET updated_at = NOW()
+        <if test="title != null">, title = #{title}</if>
+        <if test="recipeDate != null">, recipe_date = #{recipeDate}</if>
+        <if test="issue != null">, issue = #{issue}</if>
+        <if test="canteenName != null">, canteen_name = #{canteenName}</if>
+        <if test="originalText != null">, original_text = #{originalText}</if>
+        <if test="status != null">, status = #{status}</if>
+        <if test="templateId != null">, template_id = #{templateId}</if>
+        <if test="displayPrice != null">, display_price = #{displayPrice}</if>
+        <if test="displayDate != null">, display_date = #{displayDate}</if>
+        <if test="displayCanteen != null">, display_canteen = #{displayCanteen}</if>
+        <if test="currentPosterId != null">, current_poster_id = #{currentPosterId}</if>
+        <if test="groupId != null">, group_id = #{groupId}</if>
+        <if test="isCurrent != null">, is_current = #{isCurrent}</if>
+        <if test="creatorId != null">, creator_id = #{creatorId}</if>
+        WHERE id = #{id} AND is_deleted = 0
+    </update>
+
+    <update id="deleteById">
+        UPDATE menu_recipe SET is_deleted = 1, updated_at = NOW() WHERE id = #{id}
+    </update>
+
+    <select id="selectCurrentByGroup" resultMap="BaseResultMap">
+        SELECT * FROM menu_recipe
+        WHERE group_id = #{groupId} AND is_current = 1 AND is_deleted = 0
+        LIMIT 1
+    </select>
+
+    <update id="clearCurrentByGroup">
+        UPDATE menu_recipe SET is_current = 0, updated_at = NOW()
+        WHERE group_id = #{groupId} AND is_current = 1 AND is_deleted = 0
+    </update>
+
+    <select id="selectTodayDraft" resultMap="BaseResultMap">
+        SELECT * FROM menu_recipe
+        WHERE recipe_date = #{date} AND is_deleted = 0 AND status != 'generated'
+        LIMIT 1
+    </select>
+
+    <select id="countByStatus" resultType="java.util.HashMap">
+        SELECT status, COUNT(*) AS cnt FROM menu_recipe
+        WHERE is_deleted = 0 AND group_id = #{groupId} GROUP BY status
+    </select>
+
+    <select id="countByMonth" resultType="java.util.HashMap">
+        SELECT DATE_FORMAT(recipe_date, '%Y-%m') AS month, COUNT(*) AS cnt
+        FROM menu_recipe WHERE is_deleted = 0
+        AND group_id = #{groupId}
+        AND recipe_date >= DATE_SUB(CURDATE(), INTERVAL #{months} MONTH)
+        GROUP BY month ORDER BY month ASC
+    </select>
+
+</mapper>
