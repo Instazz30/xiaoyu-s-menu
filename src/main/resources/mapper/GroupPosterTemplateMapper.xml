@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.xiaxiaoyu.xingbangmenu.mapper.GroupPosterTemplateMapper">
+    <resultMap id="BaseResultMap" type="com.xiaxiaoyu.xingbangmenu.entity.GroupPosterTemplate">
+        <id column="id" property="id"/>
+        <result column="group_id" property="groupId"/>
+        <result column="creator_id" property="creatorId"/>
+        <result column="name" property="name"/>
+        <result column="base_template_id" property="baseTemplateId"/>
+        <result column="background_url" property="backgroundUrl"/>
+        <result column="logo_url" property="logoUrl"/>
+        <result column="logo_slot" property="logoSlot"/>
+        <result column="qr_code_url" property="qrCodeUrl"/>
+        <result column="qr_code_slot" property="qrCodeSlot"/>
+        <result column="display_price" property="displayPrice"/>
+        <result column="display_date" property="displayDate"/>
+        <result column="display_canteen" property="displayCanteen"/>
+        <result column="status" property="status"/>
+        <result column="is_default" property="isDefault"/>
+        <result column="created_at" property="createdAt"/>
+        <result column="updated_at" property="updatedAt"/>
+        <result column="is_deleted" property="isDeleted"/>
+    </resultMap>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO group_poster_template
+        (group_id, creator_id, name, base_template_id, background_url, logo_url, logo_slot,
+         qr_code_url, qr_code_slot, display_price, display_date, display_canteen, status, is_default)
+        VALUES
+        (#{groupId}, #{creatorId}, #{name}, #{baseTemplateId}, #{backgroundUrl}, #{logoUrl}, #{logoSlot},
+         #{qrCodeUrl}, #{qrCodeSlot}, #{displayPrice}, #{displayDate}, #{displayCanteen}, #{status}, #{isDefault})
+    </insert>
+
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT * FROM group_poster_template WHERE id = #{id} AND is_deleted = 0
+    </select>
+
+    <select id="selectByGroupId" resultMap="BaseResultMap">
+        SELECT * FROM group_poster_template
+        WHERE group_id = #{groupId} AND is_deleted = 0
+        ORDER BY is_default DESC, updated_at DESC
+    </select>
+
+    <select id="countByGroupId" resultType="int">
+        SELECT COUNT(*) FROM group_poster_template WHERE group_id = #{groupId} AND is_deleted = 0
+    </select>
+
+    <update id="update">
+        UPDATE group_poster_template SET updated_at = NOW()
+        <if test="name != null">, name = #{name}</if>
+        <if test="baseTemplateId != null">, base_template_id = #{baseTemplateId}</if>
+        , background_url = #{backgroundUrl}
+        , logo_url = #{logoUrl}
+        <if test="logoSlot != null">, logo_slot = #{logoSlot}</if>
+        , qr_code_url = #{qrCodeUrl}
+        <if test="qrCodeSlot != null">, qr_code_slot = #{qrCodeSlot}</if>
+        <if test="displayPrice != null">, display_price = #{displayPrice}</if>
+        <if test="displayDate != null">, display_date = #{displayDate}</if>
+        <if test="displayCanteen != null">, display_canteen = #{displayCanteen}</if>
+        <if test="status != null">, status = #{status}</if>
+        <if test="isDefault != null">, is_default = #{isDefault}</if>
+        WHERE id = #{id} AND is_deleted = 0
+    </update>
+
+    <update id="clearDefault">
+        UPDATE group_poster_template SET is_default = 0, updated_at = NOW()
+        WHERE group_id = #{groupId} AND is_deleted = 0 AND is_default = 1
+    </update>
+
+    <update id="deleteById">
+        UPDATE group_poster_template SET is_deleted = 1, is_default = 0, updated_at = NOW()
+        WHERE id = #{id}
+    </update>
+</mapper>

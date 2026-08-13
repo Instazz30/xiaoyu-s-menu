@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.xiaxiaoyu.xingbangmenu.mapper.MenuItemLogMapper">
+
+    <resultMap id="BaseResultMap" type="com.xiaxiaoyu.xingbangmenu.entity.MenuItemLog">
+        <id column="id" property="id"/>
+        <result column="group_id" property="groupId"/>
+        <result column="recipe_id" property="recipeId"/>
+        <result column="recipe_date" property="recipeDate"/>
+        <result column="item_id" property="itemId"/>
+        <result column="item_name" property="itemName"/>
+        <result column="user_id" property="userId"/>
+        <result column="user_name" property="userName"/>
+        <result column="action_type" property="actionType"/>
+        <result column="field_name" property="fieldName"/>
+        <result column="old_value" property="oldValue"/>
+        <result column="new_value" property="newValue"/>
+        <result column="created_at" property="createdAt"/>
+    </resultMap>
+
+    <insert id="insert" parameterType="com.xiaxiaoyu.xingbangmenu.entity.MenuItemLog"
+            useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO menu_item_log (group_id, recipe_id, recipe_date, item_id, item_name,
+            user_id, user_name, role, action_type, field_name, old_value, new_value)
+        VALUES (#{groupId}, #{recipeId}, #{recipeDate}, #{itemId}, #{itemName},
+            #{userId}, #{userName}, #{role}, #{actionType}, #{fieldName}, #{oldValue}, #{newValue})
+    </insert>
+
+    <select id="selectByGroupId" resultMap="BaseResultMap">
+        SELECT * FROM menu_item_log
+        WHERE group_id = #{groupId}
+        <if test="menuDate != null">
+            AND recipe_date = #{menuDate}
+        </if>
+        <if test="operatorId != null">
+            AND user_id = #{operatorId}
+        </if>
+        <if test="keyword != null and keyword != ''">
+            AND item_name LIKE CONCAT('%', #{keyword}, '%')
+        </if>
+        ORDER BY created_at DESC
+        LIMIT #{offset}, #{limit}
+    </select>
+
+    <select id="countByGroupId" resultType="long">
+        SELECT COUNT(*) FROM menu_item_log
+        WHERE group_id = #{groupId}
+        <if test="menuDate != null">
+            AND recipe_date = #{menuDate}
+        </if>
+        <if test="operatorId != null">
+            AND user_id = #{operatorId}
+        </if>
+        <if test="keyword != null and keyword != ''">
+            AND item_name LIKE CONCAT('%', #{keyword}, '%')
+        </if>
+    </select>
+
+    <select id="selectAllForExport" resultMap="BaseResultMap">
+        SELECT * FROM menu_item_log
+        WHERE group_id = #{groupId}
+        <if test="dateFrom != null">
+            AND recipe_date >= #{dateFrom}
+        </if>
+        <if test="dateTo != null">
+            AND recipe_date &lt;= #{dateTo}
+        </if>
+        ORDER BY created_at ASC
+    </select>
+</mapper>

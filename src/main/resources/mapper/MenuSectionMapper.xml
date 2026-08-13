@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.xiaxiaoyu.xingbangmenu.mapper.MenuSectionMapper">
+
+    <resultMap id="BaseResultMap" type="com.xiaxiaoyu.xingbangmenu.entity.MenuSection">
+        <id column="id" property="id"/>
+        <result column="recipe_id" property="recipeId"/>
+        <result column="price_text" property="priceText"/>
+        <result column="sort_order" property="sortOrder"/>
+        <result column="needs_confirmation" property="needsConfirmation"/>
+        <result column="is_xiaowan" property="isXiaowan"/>
+        <result column="created_at" property="createdAt"/>
+        <result column="updated_at" property="updatedAt"/>
+        <result column="is_deleted" property="isDeleted"/>
+    </resultMap>
+
+    <insert id="insert" parameterType="com.xiaxiaoyu.xingbangmenu.entity.MenuSection"
+            useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO menu_section (recipe_id, name, price, price_text, sort_order, needs_confirmation, is_xiaowan)
+        VALUES (#{recipeId}, #{name}, #{price}, #{priceText}, #{sortOrder}, COALESCE(#{needsConfirmation}, 0), COALESCE(#{isXiaowan}, 0))
+    </insert>
+
+    <select id="selectByRecipeId" resultMap="BaseResultMap">
+        SELECT * FROM menu_section
+        WHERE recipe_id = #{recipeId} AND is_deleted = 0
+        ORDER BY sort_order ASC
+    </select>
+
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT * FROM menu_section WHERE id = #{id} AND is_deleted = 0
+    </select>
+
+    <update id="update" parameterType="com.xiaxiaoyu.xingbangmenu.entity.MenuSection">
+        UPDATE menu_section SET updated_at = NOW()
+        <if test="name != null">, name = #{name}</if>
+        <if test="price != null">, price = #{price}</if>
+        <if test="priceText != null">, price_text = #{priceText}</if>
+        <if test="sortOrder != null">, sort_order = #{sortOrder}</if>
+        <if test="needsConfirmation != null">, needs_confirmation = #{needsConfirmation}</if>
+        <if test="isXiaowan != null">, is_xiaowan = #{isXiaowan}</if>
+        WHERE id = #{id} AND is_deleted = 0
+    </update>
+
+    <update id="deleteById">
+        UPDATE menu_section SET is_deleted = 1, updated_at = NOW() WHERE id = #{id}
+    </update>
+
+    <update id="deleteByRecipeId">
+        UPDATE menu_section SET is_deleted = 1, updated_at = NOW()
+        WHERE recipe_id = #{recipeId} AND is_deleted = 0
+    </update>
+
+    <insert id="insertBatch" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO menu_section (recipe_id, name, price, price_text, sort_order, needs_confirmation, is_xiaowan)
+        VALUES
+        <foreach collection="list" item="item" separator=",">
+            (#{item.recipeId}, #{item.name}, #{item.price}, #{item.priceText}, #{item.sortOrder}, COALESCE(#{item.needsConfirmation}, 0), COALESCE(#{item.isXiaowan}, 0))
+        </foreach>
+    </insert>
+
+</mapper>

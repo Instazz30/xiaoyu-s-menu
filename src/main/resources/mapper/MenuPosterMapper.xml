@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.xiaxiaoyu.xingbangmenu.mapper.MenuPosterMapper">
+
+    <resultMap id="BaseResultMap" type="com.xiaxiaoyu.xingbangmenu.entity.MenuPoster">
+        <id column="id" property="id"/>
+        <result column="recipe_id" property="recipeId"/>
+        <result column="group_id" property="groupId"/>
+        <result column="creator_id" property="creatorId"/>
+        <result column="template_id" property="templateId"/>
+        <result column="generation_status" property="generationStatus"/>
+        <result column="page_count" property="pageCount"/>
+        <result column="output_urls" property="outputUrls"/>
+        <result column="error_message" property="errorMessage"/>
+        <result column="created_at" property="createdAt"/>
+        <result column="updated_at" property="updatedAt"/>
+        <result column="is_deleted" property="isDeleted"/>
+    </resultMap>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO menu_poster (recipe_id, group_id, creator_id, template_id, generation_status)
+        VALUES (#{recipeId}, #{groupId}, #{creatorId}, #{templateId}, #{generationStatus})
+    </insert>
+
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT * FROM menu_poster WHERE id = #{id} AND is_deleted = 0
+    </select>
+
+    <select id="selectByRecipeId" resultMap="BaseResultMap">
+        SELECT * FROM menu_poster
+        WHERE recipe_id = #{recipeId} AND is_deleted = 0
+        ORDER BY created_at DESC
+    </select>
+
+    <update id="update">
+        UPDATE menu_poster SET updated_at = NOW()
+        <if test="generationStatus != null">, generation_status = #{generationStatus}</if>
+        <if test="pageCount != null">, page_count = #{pageCount}</if>
+        <if test="outputUrls != null">, output_urls = #{outputUrls}</if>
+        <if test="errorMessage != null">, error_message = #{errorMessage}</if>
+        WHERE id = #{id}
+    </update>
+
+    <update id="deleteById">
+        UPDATE menu_poster SET is_deleted = 1, updated_at = NOW() WHERE id = #{id}
+    </update>
+
+</mapper>

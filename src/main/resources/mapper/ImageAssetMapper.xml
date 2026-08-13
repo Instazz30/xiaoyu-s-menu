@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.xiaxiaoyu.xingbangmenu.mapper.ImageAssetMapper">
+
+    <resultMap id="BaseResultMap" type="com.xiaxiaoyu.xingbangmenu.entity.ImageAsset">
+        <id column="id" property="id"/>
+        <result column="recipe_id" property="recipeId"/>
+        <result column="group_id" property="groupId"/>
+        <result column="uploader_id" property="uploaderId"/>
+        <result column="review_status" property="reviewStatus"/>
+        <result column="reviewer_id" property="reviewerId"/>
+        <result column="reviewed_at" property="reviewedAt"/>
+        <result column="review_note" property="reviewNote"/>
+        <result column="item_id" property="itemId"/>
+        <result column="original_url" property="originalUrl"/>
+        <result column="thumbnail_url" property="thumbnailUrl"/>
+        <result column="file_type" property="fileType"/>
+        <result column="file_size" property="fileSize"/>
+        <result column="crop_data" property="cropData"/>
+        <result column="upload_status" property="uploadStatus"/>
+        <result column="error_message" property="errorMessage"/>
+        <result column="created_at" property="createdAt"/>
+        <result column="updated_at" property="updatedAt"/>
+        <result column="is_deleted" property="isDeleted"/>
+    </resultMap>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO image_asset (recipe_id, group_id, uploader_id, review_status, item_id,
+            original_url, thumbnail_url, file_type, file_size, width, height, upload_status)
+        VALUES (#{recipeId}, #{groupId}, #{uploaderId}, #{reviewStatus}, #{itemId},
+            #{originalUrl}, #{thumbnailUrl}, #{fileType}, #{fileSize}, #{width}, #{height}, #{uploadStatus})
+    </insert>
+
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT * FROM image_asset WHERE id = #{id} AND is_deleted = 0
+    </select>
+
+    <select id="selectByRecipeId" resultMap="BaseResultMap">
+        SELECT * FROM image_asset
+        WHERE recipe_id = #{recipeId} AND is_deleted = 0
+        ORDER BY created_at DESC
+    </select>
+
+    <select id="selectByItemId" resultMap="BaseResultMap">
+        SELECT * FROM image_asset
+        WHERE item_id = #{itemId} AND is_deleted = 0
+        ORDER BY created_at DESC
+    </select>
+
+    <update id="update">
+        UPDATE image_asset SET updated_at = NOW()
+        <if test="thumbnailUrl != null">, thumbnail_url = #{thumbnailUrl}</if>
+        <if test="cropData != null">, crop_data = #{cropData}</if>
+        <if test="uploadStatus != null">, upload_status = #{uploadStatus}</if>
+        <if test="errorMessage != null">, error_message = #{errorMessage}</if>
+        <if test="reviewStatus != null">, review_status = #{reviewStatus}</if>
+        <if test="reviewerId != null">, reviewer_id = #{reviewerId}</if>
+        <if test="reviewedAt != null">, reviewed_at = #{reviewedAt}</if>
+        <if test="reviewNote != null">, review_note = #{reviewNote}</if>
+        WHERE id = #{id}
+    </update>
+
+    <update id="deleteById">
+        UPDATE image_asset SET is_deleted = 1, updated_at = NOW() WHERE id = #{id}
+    </update>
+
+    <select id="selectPendingByGroup" resultType="java.util.HashMap">
+        SELECT img.id AS imageId, img.original_url AS originalUrl,
+               img.thumbnail_url AS thumbnailUrl, img.created_at AS createdAt,
+               img.item_id AS itemId, img.review_status AS reviewStatus,
+               it.name AS itemName, s.name AS sectionName,
+               r.id AS recipeId, r.title AS recipeTitle, r.recipe_date AS recipeDate,
+               u.nickname AS uploaderName
+        FROM image_asset img
+        INNER JOIN menu_recipe r ON r.id = img.recipe_id AND r.is_deleted = 0
+        LEFT JOIN menu_item it ON it.id = img.item_id AND it.is_deleted = 0
+        LEFT JOIN menu_section s ON s.id = it.section_id AND s.is_deleted = 0
+        LEFT JOIN sys_user u ON u.id = img.uploader_id
+        WHERE img.group_id = #{groupId} AND img.review_status = 'pending' AND img.is_deleted = 0
+        ORDER BY img.created_at ASC
+    </select>
+
+</mapper>

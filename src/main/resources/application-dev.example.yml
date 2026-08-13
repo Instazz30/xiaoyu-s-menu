@@ -1,0 +1,18 @@
+# 复制为 application-dev.yml 后填写真实信息；application-dev.yml 已被 Git 忽略。
+spring:
+  datasource:
+    username: your-database-username
+    password: your-database-password
+
+wechat:
+  appid: your-wechat-appid
+  secret: your-wechat-secret
+
+aliyun:
+  oss:
+    endpoint: your-oss-endpoint
+    region: your-oss-region
+    bucket-name: your-bucket-name
+    access-key-id: your-access-key-id
+    access-key-secret: your-access-key-secret
+    public-base-url: https://your-public-domain.example.com

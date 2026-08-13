@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.xiaxiaoyu.xingbangmenu.mapper.InspectionIssueMapper">
+
+    <resultMap id="BaseResultMap" type="com.xiaxiaoyu.xingbangmenu.entity.InspectionIssue">
+        <id column="id" property="id"/>
+        <result column="user_id" property="userId"/>
+        <result column="location" property="location"/>
+        <result column="reason" property="reason"/>
+        <result column="measure" property="measure"/>
+        <result column="issue_image_url" property="issueImageUrl"/>
+        <result column="issue_thumbnail_url" property="issueThumbnailUrl"/>
+        <result column="result_image_url" property="resultImageUrl"/>
+        <result column="result_thumbnail_url" property="resultThumbnailUrl"/>
+        <result column="status" property="status"/>
+        <result column="created_at" property="createdAt"/>
+        <result column="updated_at" property="updatedAt"/>
+    </resultMap>
+
+    <insert id="insert" parameterType="com.xiaxiaoyu.xingbangmenu.entity.InspectionIssue"
+            useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO inspection_issue
+            (user_id, location, reason, measure, issue_image_url, issue_thumbnail_url, status)
+        VALUES
+            (#{userId}, #{location}, #{reason}, #{measure}, #{issueImageUrl}, #{issueThumbnailUrl}, #{status})
+    </insert>
+
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT * FROM inspection_issue
+        WHERE id = #{id} AND is_deleted = 0
+    </select>
+
+    <select id="selectByUserId" resultMap="BaseResultMap">
+        SELECT * FROM inspection_issue
+        WHERE user_id = #{userId} AND is_deleted = 0
+        <if test="startTime != null">
+            AND created_at &gt;= #{startTime}
+        </if>
+        <if test="endTime != null">
+            AND created_at &lt; #{endTime}
+        </if>
+        <if test="location != null and location != ''">
+            AND location LIKE CONCAT('%', #{location}, '%')
+        </if>
+        ORDER BY created_at DESC, id DESC
+    </select>
+
+    <select id="selectByIds" resultMap="BaseResultMap">
+        SELECT * FROM inspection_issue
+        WHERE user_id = #{userId} AND is_deleted = 0
+          AND id IN
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+        ORDER BY created_at ASC, id ASC
+    </select>
+
+    <update id="updateText" parameterType="com.xiaxiaoyu.xingbangmenu.entity.InspectionIssue">
+        UPDATE inspection_issue
+        SET location = #{location}, reason = #{reason}, measure = #{measure}
+        WHERE id = #{id} AND user_id = #{userId} AND is_deleted = 0
+    </update>
+
+    <update id="updateResultImage">
+        UPDATE inspection_issue
+        SET result_image_url = #{resultImageUrl},
+            result_thumbnail_url = #{resultThumbnailUrl},
+            status = #{status}
+        WHERE id = #{id} AND user_id = #{userId} AND is_deleted = 0
+    </update>
+
+    <update id="deleteByIds">
+        UPDATE inspection_issue
+        SET is_deleted = 1
+        WHERE user_id = #{userId} AND is_deleted = 0
+          AND id IN
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </update>
+</mapper>
