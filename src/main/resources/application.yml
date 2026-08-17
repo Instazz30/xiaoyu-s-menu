@@ -57,8 +57,28 @@ upload:
 # 阿里云 OSS（AccessKey 使用 OSS_ACCESS_KEY_ID / OSS_ACCESS_KEY_SECRET 环境变量）
 aliyun:
   oss:
-    endpoint: ${OSS_ENDPOINT:}
-    region: ${OSS_REGION:}
+    endpoint: ${OSS_ENDPOINT:oss-cn-shenzhen.aliyuncs.com}
+    region: ${OSS_REGION:cn-shenzhen}
     bucket-name: ${OSS_BUCKET_NAME:}
-    # Bucket 使用自定义域名、CDN 或内网 Endpoint 时，应显式配置公网访问地址
+    access-key-id: ${OSS_ACCESS_KEY_ID:}
+    access-key-secret: ${OSS_ACCESS_KEY_SECRET:}
     public-base-url: ${OSS_PUBLIC_BASE_URL:}
+
+private-room:
+  ai:
+    enabled: ${DEEPSEEK_ENABLED:false}
+    api-key: ${DEEPSEEK_API_KEY:}
+    base-url: ${DEEPSEEK_BASE_URL:https://api.deepseek.com}
+    model: ${DEEPSEEK_MODEL:deepseek-v4-flash}
+    timeout-seconds: ${DEEPSEEK_TIMEOUT_SECONDS:10}
+    max-retries: ${DEEPSEEK_MAX_RETRIES:2}
+    daily-limit-per-group: ${DEEPSEEK_DAILY_LIMIT:999}
+    candidate-limit: ${DEEPSEEK_CANDIDATE_LIMIT:80}
+    max-plans: ${DEEPSEEK_MAX_PLANS:3}
+  mail:
+    enabled: ${PRIVATE_ROOM_MAIL_ENABLED:false}
+    host: ${SMTP_HOST:smtp.qq.com}
+    port: ${SMTP_PORT:465}
+    username: ${SMTP_USERNAME:}
+    auth-code: ${SMTP_AUTH_CODE:}
+    from-name: ${SMTP_FROM_NAME:星邦智慧食堂}
