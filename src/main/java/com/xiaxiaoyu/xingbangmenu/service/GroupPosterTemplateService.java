@@ -208,12 +208,6 @@ public class GroupPosterTemplateService {
             template.setStatus(status);
         } else if (creating) template.setStatus("draft");
         if (creating) template.setIsDefault(false);
-        if ("published".equals(template.getStatus())
-                && template.getBackgroundUrl() == null
-                && template.getLogoUrl() == null
-                && template.getQrCodeUrl() == null) {
-            throw new BusinessException(400, "发布专属模板前请至少上传一项自定义素材");
-        }
     }
 
     private GroupPosterTemplate requireEditable(Long groupId, Long id, Long userId) {

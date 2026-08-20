@@ -79,7 +79,7 @@ public class TextComponent implements Component {
             return def.getDefaultText();
         }
 
-        // 内嵌占位符：如 "第{{issue}}期食堂菜单"
+        // 内嵌占位符：如 "{{issueText}}期食堂菜单"
         if (template.contains("{{")) {
             StringBuilder sb = new StringBuilder();
             boolean anyBound = false;

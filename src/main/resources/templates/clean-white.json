@@ -10,8 +10,8 @@
     "children": [
       {
         "type": "text",
-        "text": "第{{issue}}期食堂菜单",
-        "defaultText": "第1期食堂菜单",
+        "text": "{{issueText}}期食堂菜单",
+        "defaultText": "一期食堂菜单",
         "position": { "x": "center", "y": 42 },
         "style": { "fontSize": 32, "bold": true, "color": "#0099D9", "align": "center" }
       },

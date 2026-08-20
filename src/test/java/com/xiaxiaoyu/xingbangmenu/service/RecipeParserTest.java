@@ -253,6 +253,24 @@ class RecipeParserTest {
     }
 
     @Test
+    void shouldKeepSoupDishInTaocanWhenThereAreMoreThanFiveDishes() {
+        String text = """
+                今日套餐
+                套餐区：红烧肉、清蒸鱼、宫保鸡丁、炒时蔬、凉拌黄瓜、紫菜蛋花汤
+                小碗菜
+                3元区：蒸南瓜、烧鸭""";
+
+        ParseResult result = parser.parse(text);
+
+        assertEquals(2, result.getSections().size());
+        assertFalse(result.getSections().get(0).isXiaowan());
+        assertEquals(List.of("红烧肉", "清蒸鱼", "宫保鸡丁", "炒时蔬", "凉拌黄瓜", "紫菜蛋花汤"),
+                result.getSections().get(0).getItems());
+        assertTrue(result.getSections().get(1).isXiaowan());
+        assertEquals(List.of("蒸南瓜", "烧鸭"), result.getSections().get(1).getItems());
+    }
+
+    @Test
     void shouldKeepTwoCharDishNamesSeparate() {
         String text = "三元区 汉堡 薯条";
 

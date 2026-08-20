@@ -347,7 +347,7 @@ public class RecipeParser {
             ParseResult.SectionResult cur = section;
 
             for (String item : items) {
-                if (containsSectionKeyword(item)) {
+                if (XIAOWAN_TITLE.matcher(item).matches()) {
                     if (!buf.isEmpty()) {
                         // 关键词在中间：拆分，前面菜品属于原区域，关键词开启新区块
                         cur.setItems(new ArrayList<>(buf));
@@ -356,6 +356,7 @@ public class RecipeParser {
                         cur = new ParseResult.SectionResult();
                         cur.setName(item);
                         cur.setNeedsConfirmation(true);
+                        cur.setXiaowan(true);
                     }
                     // 关键词在第一位：跳过（保留原区域名和价格信息）
                 } else {

@@ -24,6 +24,7 @@ public class DataBinder {
     @SuppressWarnings("unchecked")
     public Map<String, Object> toModel(PosterContext ctx) {
         Map<String, Object> model = mapper.convertValue(ctx, LinkedHashMap.class);
+        model.put("issueText", chineseIssue(ctx.getIssue()));
 
         // 拆分小碗菜区域
         List<Map<String, Object>> all = castList(model.get("sections"));
@@ -45,6 +46,16 @@ public class DataBinder {
         model.put("xiaowanSections", xiaowan);
         model.put("hasXiaowan", !xiaowan.isEmpty());
         return model;
+    }
+
+    private String chineseIssue(Integer issue) {
+        return switch (issue == null ? 1 : issue) {
+            case 1 -> "一";
+            case 2 -> "二";
+            case 3 -> "三";
+            case 4 -> "四";
+            default -> String.valueOf(issue);
+        };
     }
 
     @SuppressWarnings("unchecked")

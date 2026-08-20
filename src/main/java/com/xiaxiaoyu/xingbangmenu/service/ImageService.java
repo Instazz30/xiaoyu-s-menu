@@ -18,6 +18,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.imageio.ImageIO;
+import java.awt.Color;
+import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
@@ -26,6 +28,7 @@ import java.io.InputStream;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
 
 @Service
 public class ImageService {
@@ -140,8 +143,17 @@ public class ImageService {
                     storageService.upload(objectPrefix + outFilename, originalBytes, "image/jpeg"));
             CompletableFuture<String> thumbnailUpload = CompletableFuture.supplyAsync(() ->
                     storageService.upload(objectPrefix + thumbFilename, thumbnailBytes, "image/jpeg"));
-            String originalUrl = originalUpload.join();
-            String thumbnailUrl = thumbnailUpload.join();
+            String originalUrl;
+            String thumbnailUrl;
+            try {
+                CompletableFuture.allOf(originalUpload, thumbnailUpload).join();
+                originalUrl = originalUpload.join();
+                thumbnailUrl = thumbnailUpload.join();
+            } catch (CompletionException e) {
+                log.error("图片上传 OSS 失败 — 文件名: {}, 检测格式: {}", originalFilename, detectedFormat,
+                        e.getCause() != null ? e.getCause() : e);
+                throw new BusinessException(10009, "图片存储失败，请稍后重试");
+            }
 
             ImageAsset asset = new ImageAsset();
             asset.setRecipeId(recipeId);
@@ -295,8 +307,17 @@ public class ImageService {
     // ---- 内部方法 ----
 
     private byte[] toJpegBytes(BufferedImage image) throws IOException {
+        BufferedImage rgbImage = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_INT_RGB);
+        Graphics2D graphics = rgbImage.createGraphics();
+        try {
+            graphics.setColor(Color.WHITE);
+            graphics.fillRect(0, 0, rgbImage.getWidth(), rgbImage.getHeight());
+            graphics.drawImage(image, 0, 0, null);
+        } finally {
+            graphics.dispose();
+        }
         ByteArrayOutputStream output = new ByteArrayOutputStream();
-        if (!ImageIO.write(image, "jpg", output)) {
+        if (!ImageIO.write(rgbImage, "jpg", output)) {
             throw new IOException("无法编码 JPEG 图片");
         }
         return output.toByteArray();
